@@ -1,5 +1,3 @@
-/** Node: node for a singly linked list. */
-
 class Node {
   constructor(val) {
     this.val = val;
@@ -7,142 +5,89 @@ class Node {
   }
 }
 
-/** LinkedList: chained together nodes. */
-
 class LinkedList {
   constructor(vals = []) {
     this.head = null;
     this.tail = null;
     this.length = 0;
 
-    for (let val of vals) this.push(val);
+    for (let val of vals) {
+      this.push(val);
+    }
   }
 
-  /** push(val): add new value to end of list. */
+  _get(idx) {
+    if (isNaN(Number(idx)) || idx < 0 || idx >= this.length) {
+      return null;
+    }
+    let curr = this.head;
+    while (idx) {
+      idx--;
+      curr = curr.next;
+    }
+    return curr;
+  }
+
+  _wrappedGet(node, idx) {
+    if (idx > 0) {
+      return this._wrappedGet(node.next, idx - 1);
+    }
+    return node;
+  }
 
   push(val) {
     const newNode = new Node(val);
     if (!this.head) {
       this.head = newNode;
       this.tail = newNode;
-    }
-    else {
+    } else {
       this.tail.next = newNode;
       this.tail = newNode;
     }
     this.length++;
   }
 
-  /** unshift(val): add new value to start of list. */
-
-  unshift(val) {
-    const newNode = new Node(val);
-    if (!this.head) {
-      this.head = newNode;
-      this.tail = newNode;
-    }
-    else {
-      newNode.next = this.head;
-      this.head = newNode;
-    }
-    this.length++;
-  }
-
-  /** pop(): return & remove last item. */
-
-  pop() {
-    if (this.length === 0) {
-      return undefined;
-    }
-
-    const popped = this.tail;
-
-    if (this.length === 1) {
-      this.head = null;
-      this.tail = null;
-    } else {
-      let curr = this.head;
-      while (curr.next !== this.tail) {
-        curr = curr.next;
-      }
-      curr.next = null;
-      this.tail = curr;
-    }
-
-    this.length--;
-    return popped.val;
-  }
-
-
-  /** shift(): return & remove first item. */
-
-  shift() {
-    const shifted = this.head;
-    if (this.length === 0) {
-      return undefined;
-    }
-    else if (this.length === 1) {
-      this.head = null;
-      this.tail = null;
-    }
-    else {
-      this.head = this.head.next;
-    }
-    this.length--;
-    return shifted.val;
-  }
-
-  /** getAt(idx): get val at idx. */
-
-  getAt(idx) {
-    const node = this._get(idx);
-    return node.val;
-  }
-
-  /** setAt(idx, val): set val at idx to val */
-
-  setAt(idx, val) {
-    const node = this._get(idx);
-    node.val = val;
-    // return node.val;
-  }
-
-  /** insertAt(idx, val): add node w/val before idx. */
-
   insertAt(idx, val) {
     const newNode = new Node(val);
+    let prev;
     if (idx === 0) {
       newNode.next = this.head;
       this.head = newNode;
-    }
-    else {
-      const prev = this._get(idx - 1);
+    } else {
+      prev = this._get(idx - 1);
       newNode.next = prev.next;
       prev.next = newNode;
     }
+    if (prev === this.tail || !this.tail) {
+      this.tail = newNode;
+    }
     this.length++;
-
   }
-
-  /** removeAt(idx): return & remove item at idx, */
 
   removeAt(idx) {
     const removed = this._get(idx);
+    let prev;
     if (idx === 0) {
       this.head = this.head.next;
-    }
-    else {
-      const prev = this._get(idx - 1);
+    } else {
+      prev = this._get(idx - 1);
       prev.next = removed.next;
+      if (removed === this.tail) {
+        this.tail = prev;
+      }
     }
     this.length--;
+    if (this.length === 0) {
+      this.head = this.tail = null;
+    }
     return removed.val;
   }
 
-  /** average(): return an average of all values in the list */
-
   average() {
-    const sum = 0;
+    if (!this.length) {
+      return 0;
+    }
+    let sum = 0;
     let curr = this.head;
     while (curr) {
       sum += curr.val;
